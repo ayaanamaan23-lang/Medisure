@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { updateProfile } from 'firebase/auth';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from '../lib/firebase';
+import AdBanner from './AdBanner';
 
 export default function Settings() {
   const navigate = useNavigate();
@@ -104,6 +105,8 @@ export default function Settings() {
       </header>
 
       <main className="max-w-[600px] mx-auto w-full px-5 pt-8 pb-12 space-y-8">
+        
+        <AdBanner />
         
         {/* Profile Card */}
         <section className="bg-white dark:bg-[#1b1b1e] rounded-[24px] p-6 shadow-sm border border-gray-100 dark:border-gray-800">

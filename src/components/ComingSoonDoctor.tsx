@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import AdBanner from './AdBanner';
 
 export default function ComingSoonDoctor() {
   const navigate = useNavigate();
@@ -17,6 +18,8 @@ export default function ComingSoonDoctor() {
         </button>
         <h1 className="text-xl font-bold text-slate-900 truncate">Doctor</h1>
       </header>
+
+      <AdBanner />
 
       <main className="max-w-[448px] mx-auto w-full px-5 pt-6 pb-12 relative overflow-hidden">
         {/* Decorative elements */}

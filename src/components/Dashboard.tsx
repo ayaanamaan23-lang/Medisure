@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { ScanResult, Stats } from '../types';
 import { useAuth } from '../contexts/AuthContext';
+import AdBanner from './AdBanner';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -290,6 +291,8 @@ export default function Dashboard() {
           </div>
         </section>
 
+        <AdBanner />
+
         {/* Recent Scans List */}
         <section className="space-y-md">
           <div className="flex justify-between items-center">
@@ -330,6 +333,8 @@ export default function Dashboard() {
             )}
           </div>
         </section>
+
+        <AdBanner />
       </main>
 
       {/* Bottom Navigation Bar */}

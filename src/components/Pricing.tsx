@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
+import AdBanner from './AdBanner';
 
 export default function Pricing() {
   const navigate = useNavigate();
@@ -51,6 +52,8 @@ export default function Pricing() {
         </div>
         <div className="w-10"></div>
       </header>
+
+      <AdBanner />
 
       <div className="pt-xl px-md sm:px-lg lg:px-xl max-w-[1280px] mx-auto relative z-10">
         <div className="text-center mb-xl flex flex-col items-center">

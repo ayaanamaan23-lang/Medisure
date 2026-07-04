@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
+import AdBanner from './AdBanner';
 
 export default function ClarifyMedicine() {
   const navigate = useNavigate();
@@ -100,6 +101,8 @@ export default function ClarifyMedicine() {
         </button>
         <h1 className="ml-2 text-lg font-bold text-gray-900 truncate">Clarification of your Medicine</h1>
       </header>
+
+      <AdBanner />
 
       <main className="flex-1 w-full max-w-[896px] mx-auto px-4 sm:px-6 py-6 sm:py-10 flex flex-col animate-fadeIn">
         

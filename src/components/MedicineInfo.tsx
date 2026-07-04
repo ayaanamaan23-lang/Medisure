@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { ScanResult } from '../types';
+import AdBanner from './AdBanner';
 
 export default function MedicineInfo() {
   const { id } = useParams<{ id: string }>();
@@ -275,6 +276,8 @@ export default function MedicineInfo() {
           </div>
 
         </div>
+        
+        <AdBanner />
       </main>
     </div>
   );

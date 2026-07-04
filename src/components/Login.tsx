@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '../lib/firebase';
+import AdBanner from './AdBanner';
 
 export default function Login() {
   const [isLogin, setIsLogin] = useState(false);
@@ -30,7 +31,12 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-md font-body-md text-on-surface" style={{ background: 'radial-gradient(circle at 0% 0%, #fbf8fc 0%, #f2f0f3 100%)' }}>
+    <div className="min-h-screen flex items-center justify-center p-md font-body-md text-on-surface flex-col" style={{ background: 'radial-gradient(circle at 0% 0%, #fbf8fc 0%, #f2f0f3 100%)' }}>
+      
+      <div className="w-full max-w-[440px]">
+        <AdBanner />
+      </div>
+
       <main className="w-full max-w-[440px] flex flex-col gap-xl">
         {/* Header & Hero Section */}
         <div className="flex flex-col items-center text-center gap-md">
