@@ -1,0 +1,6 @@
+{
+  "name": "Medisure",
+  "description": "Medicine verification and clinical precision dashboard",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

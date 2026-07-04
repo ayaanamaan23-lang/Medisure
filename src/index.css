@@ -1,0 +1,132 @@
+@import "tailwindcss";
+
+@theme {
+  --color-tertiary-fixed: #e9ddff;
+  --color-secondary-fixed: #d8e2ff;
+  --color-outline: #75777f;
+  --color-on-secondary-fixed: #001a42;
+  --color-on-surface-variant: #44474e;
+  --color-surface-container-low: #f5f3f6;
+  --color-surface-tint: #4e5e81;
+  --color-on-error: #ffffff;
+  --color-on-secondary-fixed-variant: #004395;
+  --color-surface-dim: #dbd9dc;
+  --color-tertiary: #1e0050;
+  --color-inverse-on-surface: #f2f0f3;
+  --color-inverse-surface: #303033;
+  --color-background: #fbf8fc;
+  --color-surface-variant: #e4e2e5;
+  --color-on-background: #1b1b1e;
+  --color-tertiary-fixed-dim: #d0bcff;
+  --color-surface-bright: #fbf8fc;
+  --color-on-tertiary-fixed: #23005c;
+  --color-on-tertiary: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-secondary-fixed-dim: #adc6ff;
+  --color-on-primary-fixed: #081b3a;
+  --color-on-tertiary-container: #a27bff;
+  --color-primary: #031635;
+  --color-surface-container-high: #e9e7eb;
+  --color-on-surface: #1b1b1e;
+  --color-on-primary-container: #8293b8;
+  --color-surface: #fbf8fc;
+  --color-on-secondary-container: #fefcff;
+  --color-surface-container: #efedf0;
+  --color-surface-container-lowest: #ffffff;
+  --color-on-error-container: #93000a;
+  --color-primary-fixed: #d8e2ff;
+  --color-outline-variant: #c5c6cf;
+  --color-secondary: #0058be;
+  --color-primary-container: #1a2b4b;
+  --color-on-primary: #ffffff;
+  --color-on-tertiary-fixed-variant: #5516be;
+  --color-on-secondary: #ffffff;
+  --color-inverse-primary: #b6c6ef;
+  --color-surface-container-highest: #e4e2e5;
+  --color-primary-fixed-dim: #b6c6ef;
+  --color-tertiary-container: #360084;
+  --color-error: #ba1a1a;
+  --color-secondary-container: #2170e4;
+  --color-on-primary-fixed-variant: #364768;
+
+  --spacing-sm: 8px;
+  --spacing-base: 4px;
+  --spacing-container-max: 1280px;
+  --spacing-md: 16px;
+  --spacing-3xl: 64px;
+  --spacing-xs: 4px;
+  --spacing-2xl: 48px;
+  --spacing-xl: 32px;
+  --spacing-gutter: 24px;
+  --spacing-lg: 24px;
+}
+
+@layer utilities {
+  .font-body-sm { font-family: "Inter", sans-serif; }
+  .font-body-md { font-family: "Inter", sans-serif; }
+  .font-body-lg { font-family: "Inter", sans-serif; }
+  .font-headline-sm { font-family: "Plus Jakarta Sans", sans-serif; }
+  .font-headline-md { font-family: "Plus Jakarta Sans", sans-serif; }
+  .font-headline-lg { font-family: "Plus Jakarta Sans", sans-serif; }
+  .font-headline-lg-mobile { font-family: "Plus Jakarta Sans", sans-serif; }
+  .font-display-lg { font-family: "Plus Jakarta Sans", sans-serif; }
+  .font-label-md { font-family: "Inter", sans-serif; }
+
+  .text-body-sm { font-size: 14px; line-height: 1.5; font-weight: 400; }
+  .text-body-md { font-size: 16px; line-height: 1.6; font-weight: 400; }
+  .text-body-lg { font-size: 18px; line-height: 1.6; font-weight: 400; }
+  .text-headline-sm { font-size: 20px; line-height: 1.4; font-weight: 600; }
+  .text-headline-md { font-size: 24px; line-height: 1.3; font-weight: 600; }
+  .text-headline-lg { font-size: 32px; line-height: 1.2; letter-spacing: -0.01em; font-weight: 700; }
+  .text-headline-lg-mobile { font-size: 28px; line-height: 1.2; font-weight: 700; }
+  .text-display-lg { font-size: 48px; line-height: 1.1; letter-spacing: -0.02em; font-weight: 700; }
+  .text-label-md { font-size: 12px; line-height: 1.2; letter-spacing: 0.05em; font-weight: 600; }
+
+  .glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+  .ai-glow {
+    box-shadow: 0 0 20px rgba(85, 22, 190, 0.15);
+  }
+  .sidebar-gradient {
+    background: linear-gradient(180deg, #031635 0%, #052659 100%);
+  }
+  .primary-gradient {
+    background: linear-gradient(135deg, #0058be 0%, #004395 100%);
+  }
+  .premium-gradient {
+    background: linear-gradient(135deg, #360084 0%, #5516be 100%);
+  }
+  .gradient-button {
+    background: linear-gradient(135deg, #0058be 0%, #00a3ff 100%);
+  }
+  .status-pill-real {
+    background: rgba(76, 175, 80, 0.1);
+    color: #2e7d32;
+  }
+  .status-pill-fake {
+    background: rgba(211, 47, 47, 0.1);
+    color: #c62828;
+  }
+  .bottom-nav-active {
+    color: #0058be;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .ai-shimmer {
+    background: linear-gradient(90deg, transparent, rgba(162, 123, 255, 0.1), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 3s infinite linear;
+  }
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+}
