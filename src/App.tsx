@@ -7,6 +7,7 @@ import ClarifyMedicine from './components/ClarifyMedicine';
 import Pricing from './components/Pricing';
 import ComingSoonDoctor from './components/ComingSoonDoctor';
 import Settings from './components/Settings';
+import AdminPanel from './components/AdminPanel';
 import { AuthProvider } from './contexts/AuthContext';
 
 export default function App() {
@@ -21,6 +22,7 @@ export default function App() {
           <Route path="/subscription" element={<Pricing />} />
           <Route path="/doctor" element={<ComingSoonDoctor />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/admin" element={<AdminPanel />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>

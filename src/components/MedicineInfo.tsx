@@ -1,17 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { ScanResult } from '../types';
 import AdBanner from './AdBanner';
+import PopunderAd from './PopunderAd';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function MedicineInfo() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { userData } = useAuth();
   const [scan, setScan] = useState<ScanResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'overview' | 'uses' | 'sideEffects' | 'precautions' | 'composition'>('overview');
 
+  const isPremium = userData?.subscriptionStatus === 'active';
+
   useEffect(() => {
+    if (!isPremium) {
+      setLoading(false);
+      return;
+    }
+
     window.scrollTo(0, 0);
     const fetchScanDetails = async () => {
       try {
@@ -29,7 +39,36 @@ export default function MedicineInfo() {
       }
     };
     fetchScanDetails();
-  }, [id]);
+  }, [id, isPremium]);
+
+  if (!isPremium) {
+    return (
+      <div className="bg-[#f8fbff] font-sans text-slate-800 min-h-screen w-full flex flex-col relative pb-20 items-center justify-center p-4">
+        <PopunderAd />
+        <header className="absolute top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 px-4 py-4 flex items-center shadow-sm">
+          <button onClick={() => navigate(-1)} className="p-2 rounded-full hover:bg-gray-100 transition-colors flex items-center justify-center">
+            <span className="material-symbols-outlined text-gray-700">arrow_back</span>
+          </button>
+          <h1 className="ml-2 text-lg font-bold text-gray-900 truncate">Medicine Information</h1>
+        </header>
+
+        <div className="bg-white rounded-3xl p-8 max-w-[400px] w-full text-center shadow-xl border border-gray-100 mt-16">
+          <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
+            <span className="material-symbols-outlined text-4xl text-blue-600">workspace_premium</span>
+          </div>
+          <h2 className="text-2xl font-extrabold text-gray-900 mb-2">Premium Feature</h2>
+          <p className="text-gray-500 mb-8">Detailed AI insights on what a medicine does, side effects, and alternatives are only available for Premium Health subscribers.</p>
+          
+          <Link to="/subscription" className="block w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors">
+            Upgrade to Premium
+          </Link>
+          <button onClick={() => navigate(-1)} className="w-full mt-3 py-3 text-gray-500 font-bold text-sm hover:bg-gray-50 rounded-xl">
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -68,6 +107,7 @@ export default function MedicineInfo() {
 
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
+      <PopunderAd />
       {/* Header */}
       <header className="sticky top-0 z-50 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/20 px-4 py-4 flex items-center">
         <button 

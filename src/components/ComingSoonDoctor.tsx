@@ -1,10 +1,27 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdBanner from './AdBanner';
+import { db } from '../lib/firebase';
+import { collection, addDoc } from 'firebase/firestore';
 
 export default function ComingSoonDoctor() {
   const navigate = useNavigate();
   const [joined, setJoined] = useState(false);
+  const [email, setEmail] = useState('');
+  
+  const handleJoinWaitlist = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    try {
+      await addDoc(collection(db, 'waitlist'), {
+        email,
+        timestamp: new Date().toISOString()
+      });
+      setJoined(true);
+    } catch (error) {
+      console.error("Error joining waitlist: ", error);
+    }
+  };
 
   return (
     <div className="bg-[#f8fbff] text-slate-800 min-h-screen font-sans w-full">
@@ -109,7 +126,7 @@ export default function ComingSoonDoctor() {
           </p>
           
           {!joined ? (
-            <form className="space-y-4 w-full" onSubmit={(e) => { e.preventDefault(); setJoined(true); }}>
+            <form className="space-y-4 w-full" onSubmit={handleJoinWaitlist}>
               <div className="relative w-full">
                 <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-slate-400">
                   <svg fill="none" height="20" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg">
@@ -117,7 +134,14 @@ export default function ComingSoonDoctor() {
                     <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
                   </svg>
                 </div>
-                <input className="w-full pl-12 pr-4 py-3 sm:py-4 rounded-xl sm:rounded-2xl border-slate-100 bg-slate-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-slate-400 text-sm" placeholder="Enter your email" type="email" required />
+                <input 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 sm:py-4 rounded-xl sm:rounded-2xl border-slate-100 bg-slate-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-slate-400 text-sm" 
+                  placeholder="Enter your email" 
+                  type="email" 
+                  required 
+                />
               </div>
               <button className="w-full py-3 sm:py-4 px-4 rounded-xl sm:rounded-2xl text-white font-bold shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.98] transition-all text-sm sm:text-base whitespace-nowrap" type="submit" style={{ background: 'linear-gradient(90deg, #2563eb 0%, #3b82f6 100%)' }}>
                 <span>Notify Me When It's Live</span>

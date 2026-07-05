@@ -1,10 +1,14 @@
 import React, { useEffect, useRef } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function AdBanner() {
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const { userData } = useAuth();
+  
+  const isPremium = userData?.subscriptionStatus === 'active';
 
   useEffect(() => {
-    if (!iframeRef.current) return;
+    if (isPremium || !iframeRef.current) return;
     
     const doc = iframeRef.current.contentWindow?.document;
     if (doc) {
@@ -33,7 +37,9 @@ export default function AdBanner() {
       `);
       doc.close();
     }
-  }, []);
+  }, [isPremium]);
+
+  if (isPremium) return null;
 
   return (
     <div className="w-full flex justify-center items-center my-6">

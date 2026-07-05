@@ -1,10 +1,57 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import AdBanner from './AdBanner';
+import { db } from '../lib/firebase';
+import { collection, addDoc } from 'firebase/firestore';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Pricing() {
   const navigate = useNavigate();
+  const { user, userData } = useAuth();
+  const [showPayment, setShowPayment] = useState(false);
+  const [paymentName, setPaymentName] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [alreadyPremiumMessage, setAlreadyPremiumMessage] = useState(false);
+
+  const isPremium = userData?.subscriptionStatus === 'active';
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !paymentName) return;
+    
+    setIsSubmitting(true);
+    try {
+      await addDoc(collection(db, 'subscriptions'), {
+        uid: user.uid,
+        email: user.email,
+        paymentName: paymentName,
+        status: 'pending',
+        timestamp: new Date().toISOString()
+      });
+      setSuccess(true);
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 2000);
+    } catch (error) {
+      console.error("Error submitting subscription", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handlePlanClick = (planName: string) => {
+    if (planName === 'PREMIUM HEALTH') {
+      if (isPremium) {
+        setAlreadyPremiumMessage(true);
+      } else {
+        setShowPayment(true);
+      }
+    } else {
+      navigate('/dashboard');
+    }
+  };
 
   const plans = [
     {
@@ -116,13 +163,14 @@ export default function Pricing() {
                 </div>
 
                 <button 
+                  onClick={() => handlePlanClick(plan.name)}
                   className={`w-full mt-xl py-3 rounded-xl font-label-md text-label-md transition-all ${
                     plan.popular
                       ? 'bg-secondary text-white hover:shadow-lg hover:-translate-y-0.5'
                       : 'bg-surface-variant text-on-surface hover:bg-outline-variant/30'
                   }`}
                 >
-                  {plan.button}
+                  {plan.name === 'PREMIUM HEALTH' && isPremium ? 'Current Plan' : (alreadyPremiumMessage && plan.name === 'PREMIUM HEALTH' ? 'Already Premium!' : plan.button)}
                 </button>
               </div>
             </motion.div>
@@ -153,8 +201,104 @@ export default function Pricing() {
             Disclaimer: AI-generated results are estimates only. Always consult healthcare professionals before making medical decisions.
           </p>
         </div>
-
       </div>
+
+      {/* Already Premium Modal */}
+      {alreadyPremiumMessage && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-3xl p-6 sm:p-8 max-w-[400px] w-full shadow-2xl relative flex flex-col items-center text-center"
+          >
+            <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="material-symbols-outlined text-blue-600 text-3xl">workspace_premium</span>
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Already Subscribed!</h3>
+            <p className="text-sm text-gray-500 mb-6">
+              You already have an active Premium Health subscription. Enjoy all your premium benefits!
+            </p>
+            <button 
+              onClick={() => setAlreadyPremiumMessage(false)}
+              className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl"
+            >
+              Close
+            </button>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Payment Modal */}
+      {showPayment && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-3xl p-6 sm:p-8 max-w-[400px] w-full shadow-2xl relative overflow-hidden flex flex-col items-center"
+          >
+            {success ? (
+              <div className="text-center py-8">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="material-symbols-outlined text-green-500 text-3xl">check</span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Request Submitted!</h3>
+                <p className="text-sm text-gray-500">Payment process within only 5-6 hours only. You'll get premium access soon.</p>
+              </div>
+            ) : (
+              <>
+                <button 
+                  onClick={() => setShowPayment(false)}
+                  className="absolute top-4 right-4 p-2 text-gray-400 hover:bg-gray-100 rounded-full"
+                >
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+
+                <h3 className="text-xl font-bold text-gray-900 mb-1">Get Premium</h3>
+                <p className="text-sm text-gray-500 text-center mb-6">Scan to pay ₹99 for unlimited access.</p>
+
+                <div className="bg-gray-50 p-4 rounded-2xl mb-6 flex flex-col items-center border border-gray-100 w-full">
+                  {/* Using standard UPI intent URL for QR */}
+                  <img 
+                    src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=7827922018@fam&pn=Ayaan"
+                    alt="Payment QR" 
+                    className="w-48 h-48 mb-4 rounded-lg bg-white p-2 shadow-sm"
+                  />
+                  
+                  <p className="text-sm font-bold text-gray-900 mb-1">UPI ID: <span className="text-blue-600 select-all">7827922018@fam</span></p>
+                  
+                  <a 
+                    href="upi://pay?pa=7827922018@fam&pn=Ayaan"
+                    className="mt-2 inline-flex items-center gap-1 text-sm text-blue-600 font-medium hover:underline"
+                  >
+                    Open in UPI App <span className="material-symbols-outlined text-[16px]">open_in_new</span>
+                  </a>
+                </div>
+
+                <form onSubmit={handleSubscribe} className="w-full">
+                  <div className="mb-4">
+                    <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Your Name used for payment</label>
+                    <input 
+                      type="text" 
+                      value={paymentName}
+                      onChange={(e) => setPaymentName(e.target.value)}
+                      placeholder="e.g. John Doe" 
+                      required
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                    />
+                  </div>
+                  <button 
+                    type="submit"
+                    disabled={isSubmitting || !paymentName}
+                    className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl disabled:opacity-50"
+                  >
+                    {isSubmitting ? 'Verifying...' : 'I have paid'}
+                  </button>
+                </form>
+              </>
+            )}
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

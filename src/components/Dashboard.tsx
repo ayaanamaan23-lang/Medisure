@@ -4,10 +4,13 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ScanResult, Stats } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import AdBanner from './AdBanner';
+import PopunderAd from './PopunderAd';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, userData, logout } = useAuth();
   const [scans, setScans] = useState<ScanResult[]>([]);
   const [stats, setStats] = useState<Stats>({ total: 0, real: 0, fake: 0, accuracy: 0 });
   const [isUploading, setIsUploading] = useState(false);
@@ -45,6 +48,24 @@ export default function Dashboard() {
   }, []);
 
   const handleDirectAction = async (file: File, actionType: 'authenticity' | 'info') => {
+    if (userData && userData.subscriptionStatus !== 'active') {
+      if (actionType === 'info') {
+        setPredictionError('Clarifying medicine details is a Premium feature. Please upgrade to Premium Health.');
+        setShowChoiceModal(false);
+        return;
+      }
+
+      const today = new Date().toISOString().split('T')[0];
+      const isToday = userData.lastScanDate === today;
+      const scansToday = isToday ? (userData.scansToday || 0) : 0;
+      
+      if (scansToday >= 5) {
+        setPredictionError('Daily limit of 5 scans reached. Please wait until tomorrow or upgrade to Premium for unlimited scans.');
+        setShowChoiceModal(false);
+        return;
+      }
+    }
+
     setIsUploading(true);
     setPredictionError(null);
     setCurrentScan(null);
@@ -60,6 +81,7 @@ export default function Dashboard() {
         method: 'POST',
         body: formData,
       });
+
       if (res.ok) {
         const result = await res.json();
         
@@ -68,6 +90,15 @@ export default function Dashboard() {
           imageUrl: preview
         };
         
+        if (user && userData) {
+           const today = new Date().toISOString().split('T')[0];
+           const isToday = userData.lastScanDate === today;
+           await updateDoc(doc(db, 'users', user.uid), {
+             scansToday: isToday ? (userData.scansToday || 0) + 1 : 1,
+             lastScanDate: today
+           });
+        }
+
         if (actionType === 'authenticity') {
           setCurrentScan(scanResult);
         } else {
@@ -124,6 +155,7 @@ export default function Dashboard() {
 
   return (
     <div className="bg-background font-body-md text-on-surface pb-24 min-h-screen">
+      <PopunderAd />
       <input 
         type="file" 
         ref={authFileInputRef} 

@@ -1,16 +1,50 @@
 import React, { useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import AdBanner from './AdBanner';
+import PopunderAd from './PopunderAd';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function ClarifyMedicine() {
   const navigate = useNavigate();
+  const { userData } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [showChoiceModal, setShowChoiceModal] = useState(false);
+
+  const isPremium = userData?.subscriptionStatus === 'active';
+
+  if (!isPremium) {
+    return (
+      <div className="bg-[#f8fbff] font-sans text-slate-800 min-h-screen w-full flex flex-col relative pb-20 items-center justify-center p-4">
+        <PopunderAd />
+        <header className="absolute top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 px-4 py-4 flex items-center shadow-sm">
+          <button onClick={() => navigate(-1)} className="p-2 rounded-full hover:bg-gray-100 transition-colors flex items-center justify-center">
+            <span className="material-symbols-outlined text-gray-700">arrow_back</span>
+          </button>
+          <h1 className="ml-2 text-lg font-bold text-gray-900 truncate">Clarification of your Medicine</h1>
+        </header>
+
+        <div className="bg-white rounded-3xl p-8 max-w-[400px] w-full text-center shadow-xl border border-gray-100 mt-16">
+          <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
+            <span className="material-symbols-outlined text-4xl text-blue-600">workspace_premium</span>
+          </div>
+          <h2 className="text-2xl font-extrabold text-gray-900 mb-2">Premium Feature</h2>
+          <p className="text-gray-500 mb-8">Detailed AI insights on what a medicine does, side effects, and alternatives are only available for Premium Health subscribers.</p>
+          
+          <Link to="/subscription" className="block w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors">
+            Upgrade to Premium
+          </Link>
+          <button onClick={() => navigate(-1)} className="w-full mt-3 py-3 text-gray-500 font-bold text-sm hover:bg-gray-50 rounded-xl">
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const handleInfoFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -74,6 +108,7 @@ export default function ClarifyMedicine() {
 
   return (
     <div className="min-h-screen bg-[#f8f9fc] flex flex-col pb-10 font-sans">
+      <PopunderAd />
       <input 
         type="file" 
         ref={fileInputRef} 

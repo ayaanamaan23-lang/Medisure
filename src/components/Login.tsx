@@ -1,33 +1,37 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signInWithPopup } from 'firebase/auth';
-import { auth, googleProvider } from '../lib/firebase';
+import { auth, googleProvider, db } from '../lib/firebase';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 import AdBanner from './AdBanner';
 
 export default function Login() {
-  const [isLogin, setIsLogin] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const handleGoogleSignIn = async () => {
     try {
       setError(null);
-      await signInWithPopup(auth, googleProvider);
+      const result = await signInWithPopup(auth, googleProvider);
+      
+      // Save user to Firestore
+      const userRef = doc(db, 'users', result.user.uid);
+      const userDoc = await getDoc(userRef);
+      if (!userDoc.exists()) {
+        await setDoc(userRef, {
+          email: result.user.email,
+          displayName: result.user.displayName,
+          photoURL: result.user.photoURL,
+          subscriptionStatus: 'free',
+          scansToday: 0,
+          createdAt: new Date().toISOString()
+        });
+      }
+      
       navigate('/dashboard');
     } catch (err: any) {
       setError(err.message);
     }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      navigate('/dashboard');
-    }, 1500);
   };
 
   return (
@@ -46,7 +50,7 @@ export default function Login() {
           <div className="space-y-xs">
             <h1 className="font-headline-lg-mobile text-headline-lg-mobile text-primary tracking-tight">Medisure</h1>
             <p className="font-body-md text-body-md text-on-surface-variant px-xl">
-              {isLogin ? 'Sign in to access your dashboard and medicine reports.' : 'Join the future of clinical precision and medical intelligence.'}
+              Sign in to access your dashboard and medicine reports.
             </p>
           </div>
         </div>
@@ -67,78 +71,6 @@ export default function Login() {
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
             Continue with Google
           </button>
-
-          <div className="flex items-center gap-4 py-2 opacity-60">
-            <div className="flex-1 h-px bg-outline-variant"></div>
-            <span className="font-body-sm text-[12px] text-on-surface-variant uppercase tracking-wider">or email</span>
-            <div className="flex-1 h-px bg-outline-variant"></div>
-          </div>
-
-          <form className="space-y-md" onSubmit={handleSubmit}>
-            {!isLogin && (
-              <div className="space-y-xs">
-                <label className="font-label-md text-label-md text-primary ml-1" htmlFor="name">Full Name</label>
-                <div className="relative">
-                  <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-[20px]">person</span>
-                  <input className="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-xl py-3 pl-12 pr-4 font-body-sm text-body-sm text-on-surface placeholder:text-outline-variant focus:outline-none focus:border-secondary focus:ring-4 focus:ring-secondary/10 transition-all" id="name" name="name" placeholder="Dr. Jane Smith" type="text" required />
-                </div>
-              </div>
-            )}
-
-            <div className="space-y-xs">
-              <label className="font-label-md text-label-md text-primary ml-1" htmlFor="email">Medical Email</label>
-              <div className="relative">
-                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-[20px]">medical_services</span>
-                <input className="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-xl py-3 pl-12 pr-4 font-body-sm text-body-sm text-on-surface placeholder:text-outline-variant focus:outline-none focus:border-secondary focus:ring-4 focus:ring-secondary/10 transition-all" id="email" name="email" placeholder="name@clinic.com" type="email" required />
-              </div>
-              {!isLogin && <p className="text-[10px] text-on-surface-variant/60 ml-1">Enterprise SSO supported for verified institutions.</p>}
-            </div>
-
-            <div className="space-y-xs">
-              <label className="font-label-md text-label-md text-primary ml-1" htmlFor="password">Password</label>
-              <div className="relative">
-                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-[20px]">lock</span>
-                <input className="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-xl py-3 pl-12 pr-12 font-body-sm text-body-sm text-on-surface placeholder:text-outline-variant focus:outline-none focus:border-secondary focus:ring-4 focus:ring-secondary/10 transition-all" id="password" name="password" placeholder="••••••••••••" type={showPassword ? "text" : "password"} required />
-                <button className="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors" type="button" onClick={() => setShowPassword(!showPassword)}>
-                  <span className="material-symbols-outlined text-[20px]">{showPassword ? 'visibility_off' : 'visibility'}</span>
-                </button>
-              </div>
-            </div>
-
-            {!isLogin && (
-              <div className="flex items-start gap-3 py-2">
-                <div className="flex items-center h-5">
-                  <input className="h-4 w-4 rounded border-outline-variant text-secondary focus:ring-secondary cursor-pointer" id="terms" name="terms" type="checkbox" required />
-                </div>
-                <label className="font-body-sm text-body-sm text-on-surface-variant" htmlFor="terms">
-                  I agree to the <a className="text-secondary font-semibold hover:underline" href="#">Terms of Service</a> and <a className="text-secondary font-semibold hover:underline" href="#">Privacy Policy</a>.
-                </label>
-              </div>
-            )}
-
-            <button disabled={isSubmitting} className={`w-full text-white font-label-md text-label-md py-4 rounded-xl flex items-center justify-center gap-2 mt-sm group transition-all ${isSubmitting ? 'bg-secondary opacity-70' : 'primary-gradient hover:shadow-[0_8px_20px_rgba(0,88,190,0.25)] hover:-translate-y-[1px]'}`} type="submit">
-              {isSubmitting ? (
-                <>
-                  <span className="material-symbols-outlined animate-spin">refresh</span> Processing...
-                </>
-              ) : (
-                <>
-                  {isLogin ? 'Sign In' : 'Create Account'}
-                  <span className="material-symbols-outlined text-[20px] transition-transform group-hover:translate-x-1">arrow_forward</span>
-                </>
-              )}
-            </button>
-          </form>
-
-          <div className="pt-md border-t border-outline-variant/20 text-center">
-            <p className="font-body-sm text-body-sm text-on-surface-variant">
-              {isLogin ? "Don't have an account? " : "Already have an account? "}
-              <button type="button" onClick={() => setIsLogin(!isLogin)} className="text-secondary font-bold hover:text-primary transition-colors">
-                {isLogin ? 'Sign up' : 'Login'}
-              </button>
-            </p>
-
-          </div>
         </section>
 
         <footer className="flex flex-col items-center gap-md opacity-60 text-center">

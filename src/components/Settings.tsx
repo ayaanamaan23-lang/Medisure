@@ -199,7 +199,22 @@ export default function Settings() {
           <div className="p-6 border-b border-gray-100 dark:border-gray-800">
             <h2 className="text-lg font-bold text-gray-900 dark:text-white">Account Settings</h2>
           </div>
-          <div className="p-2">
+          <div className="p-2 space-y-2">
+            {user?.email === 'ayaanamaan23@gmail.com' && (
+              <button
+                onClick={() => navigate('/admin')}
+                className="w-full flex items-center gap-3 p-4 text-left hover:bg-blue-50 dark:hover:bg-blue-900/10 text-blue-600 dark:text-blue-400 rounded-xl transition-colors cursor-pointer group"
+              >
+                <div className="w-10 h-10 rounded-lg bg-blue-100/50 dark:bg-blue-900/20 flex items-center justify-center group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30 transition-colors">
+                  <span className="material-symbols-outlined text-[20px]">admin_panel_settings</span>
+                </div>
+                <div>
+                  <span className="font-bold block text-sm">Admin Panel</span>
+                  <span className="text-[11px] text-blue-600/70 dark:text-blue-400/70">Manage users and waitlist</span>
+                </div>
+              </button>
+            )}
+
             <button
               onClick={handleLogout}
               className="w-full flex items-center gap-3 p-4 text-left hover:bg-red-50 dark:hover:bg-red-900/10 text-red-600 dark:text-red-400 rounded-xl transition-colors cursor-pointer group"
